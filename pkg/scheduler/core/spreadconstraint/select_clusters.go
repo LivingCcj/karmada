@@ -44,13 +44,14 @@ func SelectBestClusters(placement *policyv1alpha1.Placement, groupClustersInfo *
 	if err != nil {
 		return nil, fmt.Errorf("failed to select clusters by spread constraints: %w", err)
 	}
+	clusterMap := make(map[string]ClusterAvailableReplicas)
+	for _, cluster := range groupClustersInfo.Clusters {
+		clusterMap[cluster.Name] = cluster.ClusterAvailableReplicas
+	}
 	var clusters []ClusterAvailableReplicas
-	for i, _ := range clusterList {
-		for j, _ := range groupClustersInfo.Clusters {
-			if groupClustersInfo.Clusters[j].Name == clusterList[i].Name {
-				clusters = append(clusters, groupClustersInfo.Clusters[j].ClusterAvailableReplicas)
-				break
-			}
+	for _, cluster := range clusterList {
+		if item, exist := clusterMap[cluster.Name]; exist {
+			clusters = append(clusters, item)
 		}
 	}
 

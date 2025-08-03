@@ -86,7 +86,7 @@ type assignState struct {
 	// targetReplicas is the replicas that we need to schedule in this round
 	targetReplicas int32
 
-	//availableClusterReplicas is the available replicas of candidate clusters
+	// availableClusterReplicas is the available replicas of candidate clusters
 	availableClusterReplicas []spreadconstraint.ClusterAvailableReplicas
 }
 
