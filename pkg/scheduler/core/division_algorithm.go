@@ -119,8 +119,14 @@ func dynamicScaleDown(state *assignState) ([]workv1alpha2.TargetCluster, error) 
 func dynamicScaleUp(state *assignState) ([]workv1alpha2.TargetCluster, error) {
 	// Target is the extra ones.
 	state.targetReplicas = state.spec.Replicas - state.assignedReplicas
-	state.buildAvailableClusters(func(clusters []*clusterv1alpha1.Cluster, spec *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster {
-		clusterAvailableReplicas := calAvailableReplicas(clusters, spec)
+	state.buildAvailableClusters(func(_ []*clusterv1alpha1.Cluster, spec *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster {
+		var clusterAvailableReplicas []workv1alpha2.TargetCluster
+		for _, cluster := range state.availableClusterReplicas {
+			var targetCluster workv1alpha2.TargetCluster
+			targetCluster.Name = cluster.Cluster.Name
+			targetCluster.Replicas = int32(cluster.Replicas)
+			clusterAvailableReplicas = append(clusterAvailableReplicas, targetCluster)
+		}
 		sort.Sort(TargetClustersList(clusterAvailableReplicas))
 		return clusterAvailableReplicas
 	})
@@ -132,7 +138,13 @@ func dynamicFreshScale(state *assignState) ([]workv1alpha2.TargetCluster, error)
 	// 1. targetReplicas is set to desired replicas
 	state.targetReplicas = state.spec.Replicas
 	state.buildAvailableClusters(func(clusters []*clusterv1alpha1.Cluster, spec *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster {
-		clusterAvailableReplicas := calAvailableReplicas(clusters, spec)
+		var clusterAvailableReplicas []workv1alpha2.TargetCluster
+		for _, cluster := range state.availableClusterReplicas {
+			var targetCluster workv1alpha2.TargetCluster
+			targetCluster.Name = cluster.Cluster.Name
+			targetCluster.Replicas = int32(cluster.Replicas)
+			clusterAvailableReplicas = append(clusterAvailableReplicas, targetCluster)
+		}
 		// 2. clusterAvailableReplicas should take into account the replicas already allocated
 		for _, scheduledCluster := range state.scheduledClusters {
 			for i, availableCluster := range clusterAvailableReplicas {
