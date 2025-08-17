@@ -183,11 +183,11 @@ func (g *genericScheduler) prioritizeClusters(
 }
 
 func (g *genericScheduler) selectClusters(clustersScore framework.ClusterScoreList,
-	placement *policyv1alpha1.Placement, spec *workv1alpha2.ResourceBindingSpec) ([]spreadconstraint.ClusterAvailableReplicas, error) {
+	placement *policyv1alpha1.Placement, spec *workv1alpha2.ResourceBindingSpec) ([]spreadconstraint.ClusterDetailInfo, error) {
 	return SelectClusters(clustersScore, placement, spec)
 }
 
-func (g *genericScheduler) assignReplicas(clusters []spreadconstraint.ClusterAvailableReplicas, spec *workv1alpha2.ResourceBindingSpec,
+func (g *genericScheduler) assignReplicas(clusters []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec,
 	status *workv1alpha2.ResourceBindingStatus) ([]workv1alpha2.TargetCluster, error) {
 	return AssignReplicas(clusters, spec, status)
 }

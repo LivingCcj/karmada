@@ -19,12 +19,11 @@ package spreadconstraint
 import (
 	"fmt"
 
-	clusterv1alpha1 "github.com/karmada-io/karmada/pkg/apis/cluster/v1alpha1"
 	policyv1alpha1 "github.com/karmada-io/karmada/pkg/apis/policy/v1alpha1"
 )
 
 func selectBestClustersByCluster(spreadConstraint policyv1alpha1.SpreadConstraint, groupClustersInfo *GroupClustersInfo,
-	needReplicas int32) ([]*clusterv1alpha1.Cluster, error) {
+	needReplicas int32) ([]ClusterDetailInfo, error) {
 	totalClusterCnt := len(groupClustersInfo.Clusters)
 	if totalClusterCnt < spreadConstraint.MinGroups {
 		return nil, fmt.Errorf("the number of feasible clusters is less than spreadConstraint.MinGroups")
@@ -46,9 +45,9 @@ func selectBestClustersByCluster(spreadConstraint policyv1alpha1.SpreadConstrain
 		}
 	}
 
-	var clusters []*clusterv1alpha1.Cluster
+	var clusters []ClusterDetailInfo
 	for i := range clusterInfos {
-		clusters = append(clusters, clusterInfos[i].Cluster)
+		clusters = append(clusters, clusterInfos[i])
 	}
 
 	return clusters, nil

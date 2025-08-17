@@ -21,16 +21,15 @@ import (
 
 	"k8s.io/klog/v2"
 
-	clusterv1alpha1 "github.com/karmada-io/karmada/pkg/apis/cluster/v1alpha1"
 	policyv1alpha1 "github.com/karmada-io/karmada/pkg/apis/policy/v1alpha1"
 )
 
 // SelectBestClusters selects the cluster set based the GroupClustersInfo and placement
-func SelectBestClusters(placement *policyv1alpha1.Placement, groupClustersInfo *GroupClustersInfo, needReplicas int32) ([]ClusterAvailableReplicas, error) {
+func SelectBestClusters(placement *policyv1alpha1.Placement, groupClustersInfo *GroupClustersInfo, needReplicas int32) ([]ClusterDetailInfo, error) {
 	if len(placement.SpreadConstraints) == 0 || shouldIgnoreSpreadConstraint(placement) {
-		var clusters []ClusterAvailableReplicas
+		var clusters []ClusterDetailInfo
 		for _, cluster := range groupClustersInfo.Clusters {
-			clusters = append(clusters, cluster.ClusterAvailableReplicas)
+			clusters = append(clusters, cluster)
 		}
 		klog.V(4).Infof("Select all clusters")
 		return clusters, nil
@@ -44,11 +43,11 @@ func SelectBestClusters(placement *policyv1alpha1.Placement, groupClustersInfo *
 	if err != nil {
 		return nil, fmt.Errorf("failed to select clusters by spread constraints: %w", err)
 	}
-	clusterMap := make(map[string]ClusterAvailableReplicas)
+	clusterMap := make(map[string]ClusterDetailInfo)
 	for _, cluster := range groupClustersInfo.Clusters {
-		clusterMap[cluster.Name] = cluster.ClusterAvailableReplicas
+		clusterMap[cluster.Name] = cluster
 	}
-	var clusters []ClusterAvailableReplicas
+	var clusters []ClusterDetailInfo
 	for _, cluster := range clusterList {
 		if item, exist := clusterMap[cluster.Name]; exist {
 			clusters = append(clusters, item)
@@ -59,7 +58,7 @@ func SelectBestClusters(placement *policyv1alpha1.Placement, groupClustersInfo *
 }
 
 func selectBestClustersBySpreadConstraints(spreadConstraints []policyv1alpha1.SpreadConstraint,
-	groupClustersInfo *GroupClustersInfo, needReplicas int32) ([]*clusterv1alpha1.Cluster, error) {
+	groupClustersInfo *GroupClustersInfo, needReplicas int32) ([]ClusterDetailInfo, error) {
 	spreadConstraintMap := make(map[policyv1alpha1.SpreadFieldValue]policyv1alpha1.SpreadConstraint)
 	for i := range spreadConstraints {
 		spreadConstraintMap[spreadConstraints[i].SpreadByField] = spreadConstraints[i]

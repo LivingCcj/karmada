@@ -33,9 +33,9 @@ import (
 	"github.com/karmada-io/karmada/pkg/util/names"
 )
 
-type calculator func([]*clusterv1alpha1.Cluster, *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster
+type calculator func([]spreadconstraint.ClusterDetailInfo, *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster
 
-func getDefaultWeightPreference(clusters []*clusterv1alpha1.Cluster) *policyv1alpha1.ClusterPreferences {
+func getDefaultWeightPreference(clusters []spreadconstraint.ClusterDetailInfo) *policyv1alpha1.ClusterPreferences {
 	staticWeightLists := make([]policyv1alpha1.StaticClusterWeight, 0)
 	for _, cluster := range clusters {
 		staticWeightList := policyv1alpha1.StaticClusterWeight{
@@ -106,15 +106,15 @@ func calAvailableReplicas(clusters []*clusterv1alpha1.Cluster, spec *workv1alpha
 
 // attachZeroReplicasCluster  attach cluster in clusters into targetCluster
 // The purpose is to avoid workload not appeared in rb's spec.clusters field
-func attachZeroReplicasCluster(clusters []spreadconstraint.ClusterAvailableReplicas,
+func attachZeroReplicasCluster(clusters []spreadconstraint.ClusterDetailInfo,
 	targetClusters []workv1alpha2.TargetCluster) []workv1alpha2.TargetCluster {
 	targetClusterSet := sets.NewString()
 	for i := range targetClusters {
 		targetClusterSet.Insert(targetClusters[i].Name)
 	}
 	for i := range clusters {
-		if !targetClusterSet.Has(clusters[i].Cluster.Name) {
-			targetClusters = append(targetClusters, workv1alpha2.TargetCluster{Name: clusters[i].Cluster.Name, Replicas: 0})
+		if !targetClusterSet.Has(clusters[i].Name) {
+			targetClusters = append(targetClusters, workv1alpha2.TargetCluster{Name: clusters[i].Name, Replicas: 0})
 		}
 	}
 	return targetClusters

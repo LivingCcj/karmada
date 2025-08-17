@@ -22,7 +22,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	clusterv1alpha1 "github.com/karmada-io/karmada/pkg/apis/cluster/v1alpha1"
 	policyv1alpha1 "github.com/karmada-io/karmada/pkg/apis/policy/v1alpha1"
 	workv1alpha2 "github.com/karmada-io/karmada/pkg/apis/work/v1alpha2"
 	"github.com/karmada-io/karmada/pkg/util"
@@ -68,7 +67,7 @@ const (
 
 // assignState is a wrapper of the input for assigning function.
 type assignState struct {
-	candidates []*clusterv1alpha1.Cluster
+	candidates []spreadconstraint.ClusterDetailInfo
 	strategy   *policyv1alpha1.ReplicaSchedulingStrategy
 	spec       *workv1alpha2.ResourceBindingSpec
 
@@ -85,18 +84,11 @@ type assignState struct {
 
 	// targetReplicas is the replicas that we need to schedule in this round
 	targetReplicas int32
-
-	// availableClusterReplicas is the available replicas of candidate clusters
-	availableClusterReplicas []spreadconstraint.ClusterAvailableReplicas
 }
 
-func newAssignState(clusterAvailableReplicas []spreadconstraint.ClusterAvailableReplicas, spec *workv1alpha2.ResourceBindingSpec,
+func newAssignState(clusterAvailableReplicas []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec,
 	status *workv1alpha2.ResourceBindingStatus) *assignState {
 	var strategyType string
-	var candidates []*clusterv1alpha1.Cluster
-	for _, cluster := range clusterAvailableReplicas {
-		candidates = append(candidates, cluster.Cluster)
-	}
 
 	switch spec.Placement.ReplicaSchedulingType() {
 	case policyv1alpha1.ReplicaSchedulingTypeDuplicated:
@@ -122,7 +114,7 @@ func newAssignState(clusterAvailableReplicas []spreadconstraint.ClusterAvailable
 		expectAssignmentMode = Fresh
 	}
 
-	return &assignState{candidates: candidates, strategy: spec.Placement.ReplicaScheduling, spec: spec, strategyType: strategyType, assignmentMode: expectAssignmentMode, availableClusterReplicas: clusterAvailableReplicas}
+	return &assignState{candidates: clusterAvailableReplicas, strategy: spec.Placement.ReplicaScheduling, spec: spec, strategyType: strategyType, assignmentMode: expectAssignmentMode}
 }
 
 func (as *assignState) buildScheduledClusters() {
