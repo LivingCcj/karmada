@@ -121,8 +121,8 @@ func dynamicScaleUp(state *assignState) ([]workv1alpha2.TargetCluster, error) {
 	state.targetReplicas = state.spec.Replicas - state.assignedReplicas
 	state.buildAvailableClusters(func(clusters []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec) []workv1alpha2.
 		TargetCluster {
-		clusterAvailableReplicas := make([]workv1alpha2.TargetCluster, len(state.candidates))
-		for i, cluster := range state.candidates {
+		clusterAvailableReplicas := make([]workv1alpha2.TargetCluster, len(clusters))
+		for i, cluster := range clusters {
 			clusterAvailableReplicas[i] = workv1alpha2.TargetCluster{
 				Name:     cluster.Name,
 				Replicas: int32(cluster.AllocatableReplicas),
@@ -140,8 +140,8 @@ func dynamicFreshScale(state *assignState) ([]workv1alpha2.TargetCluster, error)
 	state.targetReplicas = state.spec.Replicas
 	state.buildAvailableClusters(func(clusters []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec) []workv1alpha2.
 		TargetCluster {
-		clusterAvailableReplicas := make([]workv1alpha2.TargetCluster, len(state.candidates))
-		for i, cluster := range state.candidates {
+		clusterAvailableReplicas := make([]workv1alpha2.TargetCluster, len(clusters))
+		for i, cluster := range clusters {
 			clusterAvailableReplicas[i] = workv1alpha2.TargetCluster{
 				Name:     cluster.Name,
 				Replicas: int32(cluster.AvailableReplicas),
