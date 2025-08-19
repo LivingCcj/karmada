@@ -42,8 +42,8 @@ func selectBestClustersByRegion(spreadConstraintMap map[policyv1alpha1.SpreadFie
 
 	// secondly, select the clusters with the highest score in per region,
 	for i := range regions {
+		selectClusters = append(selectClusters, regions[i].Clusters[0])
 		candidateClusters = append(candidateClusters, regions[i].Clusters[1:]...)
-		selectClusters = append(candidateClusters, regions[i].Clusters[0])
 	}
 
 	needCnt := len(candidateClusters) + len(selectClusters)

@@ -95,20 +95,20 @@ func (g *genericScheduler) Schedule(
 	}
 	klog.V(4).Infof("Feasible clusters scores: %v", clustersScore)
 
-	availableClusters, err := g.selectClusters(clustersScore, spec.Placement, spec)
+	selectedClusters, err := g.selectClusters(clustersScore, spec.Placement, spec)
 	if err != nil {
 		return result, fmt.Errorf("failed to select clusters: %w", err)
 	}
-	klog.V(4).Infof("Selected clusters: %v", availableClusters)
+	klog.V(4).Infof("Selected clusters: %v", selectedClusters)
 
-	clustersWithReplicas, err := g.assignReplicas(availableClusters, spec, status)
+	clustersWithReplicas, err := g.assignReplicas(selectedClusters, spec, status)
 	if err != nil {
 		return result, fmt.Errorf("failed to assign replicas: %w", err)
 	}
 	klog.V(4).Infof("Assigned Replicas: %v", clustersWithReplicas)
 
 	if scheduleAlgorithmOption.EnableEmptyWorkloadPropagation {
-		clustersWithReplicas = attachZeroReplicasCluster(availableClusters, clustersWithReplicas)
+		clustersWithReplicas = attachZeroReplicasCluster(selectedClusters, clustersWithReplicas)
 	}
 	result.SuggestedClusters = clustersWithReplicas
 

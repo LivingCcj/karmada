@@ -41,7 +41,7 @@ func SelectBestClusters(placement *policyv1alpha1.Placement, groupClustersInfo *
 
 	clusterList, err := selectBestClustersBySpreadConstraints(placement.SpreadConstraints, groupClustersInfo, needReplicas)
 	if err != nil {
-		return nil, fmt.Errorf("failed to select clusters by spread constraints: %w", err)
+		return nil, err
 	}
 	clusterMap := make(map[string]ClusterDetailInfo)
 	for _, cluster := range groupClustersInfo.Clusters {

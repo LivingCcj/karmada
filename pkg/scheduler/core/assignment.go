@@ -86,7 +86,7 @@ type assignState struct {
 	targetReplicas int32
 }
 
-func newAssignState(clusterAvailableReplicas []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec,
+func newAssignState(candidates []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec,
 	status *workv1alpha2.ResourceBindingStatus) *assignState {
 	var strategyType string
 
@@ -114,7 +114,7 @@ func newAssignState(clusterAvailableReplicas []spreadconstraint.ClusterDetailInf
 		expectAssignmentMode = Fresh
 	}
 
-	return &assignState{candidates: clusterAvailableReplicas, strategy: spec.Placement.ReplicaScheduling, spec: spec, strategyType: strategyType, assignmentMode: expectAssignmentMode}
+	return &assignState{candidates: candidates, strategy: spec.Placement.ReplicaScheduling, spec: spec, strategyType: strategyType, assignmentMode: expectAssignmentMode}
 }
 
 func (as *assignState) buildScheduledClusters() {
