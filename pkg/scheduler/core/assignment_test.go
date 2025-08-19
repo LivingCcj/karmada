@@ -17,16 +17,17 @@ limitations under the License.
 package core
 
 import (
-	"github.com/karmada-io/karmada/pkg/scheduler/core/spreadconstraint"
 	"reflect"
 	"testing"
 
-	policyv1alpha1 "github.com/karmada-io/karmada/pkg/apis/policy/v1alpha1"
-	workv1alpha2 "github.com/karmada-io/karmada/pkg/apis/work/v1alpha2"
-	"github.com/karmada-io/karmada/pkg/util"
-	"github.com/karmada-io/karmada/test/helper"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+
+	policyv1alpha1 "github.com/karmada-io/karmada/pkg/apis/policy/v1alpha1"
+	workv1alpha2 "github.com/karmada-io/karmada/pkg/apis/work/v1alpha2"
+	"github.com/karmada-io/karmada/pkg/scheduler/core/spreadconstraint"
+	"github.com/karmada-io/karmada/pkg/util"
+	"github.com/karmada-io/karmada/test/helper"
 )
 
 var (
