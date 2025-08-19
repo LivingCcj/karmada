@@ -84,7 +84,7 @@ type ClusterDetailInfo struct {
 
 	Cluster *clusterv1alpha1.Cluster
 	//AllocatableReplicas the max allocatable replicas in the cluster
-	AllocatableReplicas int64
+	AllocatableReplicas int32
 }
 
 // GroupClustersWithScore groups cluster base provider/region/zone/cluster
@@ -347,7 +347,7 @@ func (info *GroupClustersInfo) generateClustersInfo(clustersScore framework.Clus
 	for i, clustersReplica := range clustersReplicas {
 		info.Clusters[i].AvailableReplicas = int64(clustersReplica.Replicas)
 		info.Clusters[i].AvailableReplicas += int64(rbSpec.AssignedReplicasForCluster(clustersReplica.Name))
-		info.Clusters[i].AllocatableReplicas = int64(clustersReplica.Replicas)
+		info.Clusters[i].AllocatableReplicas = clustersReplica.Replicas
 	}
 
 	sortClusters(info.Clusters, func(i *ClusterDetailInfo, j *ClusterDetailInfo) *bool {

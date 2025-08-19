@@ -44,13 +44,7 @@ func selectBestClustersByCluster(spreadConstraint policyv1alpha1.SpreadConstrain
 			return nil, fmt.Errorf("no enough resource when selecting %d clusters", needCnt)
 		}
 	}
-
-	var clusters []ClusterDetailInfo
-	for i := range clusterInfos {
-		clusters = append(clusters, clusterInfos[i])
-	}
-
-	return clusters, nil
+	return clusterInfos, nil
 }
 
 // if needClusterCount = 2, needReplicas = 80, member1 and member3 will be selected finally.

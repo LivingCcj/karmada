@@ -18,12 +18,12 @@ package core
 
 import (
 	"fmt"
-	"github.com/karmada-io/karmada/pkg/scheduler/core/spreadconstraint"
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
 	policyv1alpha1 "github.com/karmada-io/karmada/pkg/apis/policy/v1alpha1"
 	workv1alpha2 "github.com/karmada-io/karmada/pkg/apis/work/v1alpha2"
+	"github.com/karmada-io/karmada/pkg/scheduler/core/spreadconstraint"
 	"github.com/karmada-io/karmada/pkg/util"
 	"github.com/karmada-io/karmada/pkg/util/helper"
 )

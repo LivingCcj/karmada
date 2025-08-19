@@ -27,12 +27,8 @@ import (
 // SelectBestClusters selects the cluster set based the GroupClustersInfo and placement
 func SelectBestClusters(placement *policyv1alpha1.Placement, groupClustersInfo *GroupClustersInfo, needReplicas int32) ([]ClusterDetailInfo, error) {
 	if len(placement.SpreadConstraints) == 0 || shouldIgnoreSpreadConstraint(placement) {
-		var clusters []ClusterDetailInfo
-		for _, cluster := range groupClustersInfo.Clusters {
-			clusters = append(clusters, cluster)
-		}
 		klog.V(4).Infof("Select all clusters")
-		return clusters, nil
+		return groupClustersInfo.Clusters, nil
 	}
 
 	if shouldIgnoreAvailableResource(placement) {

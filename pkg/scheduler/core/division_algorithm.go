@@ -18,11 +18,11 @@ package core
 
 import (
 	"fmt"
-	"github.com/karmada-io/karmada/pkg/scheduler/core/spreadconstraint"
 	"sort"
 
 	policyv1alpha1 "github.com/karmada-io/karmada/pkg/apis/policy/v1alpha1"
 	workv1alpha2 "github.com/karmada-io/karmada/pkg/apis/work/v1alpha2"
+	"github.com/karmada-io/karmada/pkg/scheduler/core/spreadconstraint"
 	"github.com/karmada-io/karmada/pkg/scheduler/framework"
 	"github.com/karmada-io/karmada/pkg/util"
 	"github.com/karmada-io/karmada/pkg/util/helper"
@@ -119,12 +119,12 @@ func dynamicScaleDown(state *assignState) ([]workv1alpha2.TargetCluster, error) 
 func dynamicScaleUp(state *assignState) ([]workv1alpha2.TargetCluster, error) {
 	// Target is the extra ones.
 	state.targetReplicas = state.spec.Replicas - state.assignedReplicas
-	state.buildAvailableClusters(func(clusters []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster {
+	state.buildAvailableClusters(func(clusters []spreadconstraint.ClusterDetailInfo, _ *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster {
 		clusterAvailableReplicas := make([]workv1alpha2.TargetCluster, len(clusters))
 		for i, cluster := range clusters {
 			clusterAvailableReplicas[i] = workv1alpha2.TargetCluster{
 				Name:     cluster.Name,
-				Replicas: int32(cluster.AllocatableReplicas),
+				Replicas: cluster.AllocatableReplicas,
 			}
 		}
 		sort.Sort(TargetClustersList(clusterAvailableReplicas))
@@ -137,13 +137,12 @@ func dynamicScaleUp(state *assignState) ([]workv1alpha2.TargetCluster, error) {
 func dynamicFreshScale(state *assignState) ([]workv1alpha2.TargetCluster, error) {
 	// 1. targetReplicas is set to desired replicas
 	state.targetReplicas = state.spec.Replicas
-	state.buildAvailableClusters(func(clusters []spreadconstraint.ClusterDetailInfo, spec *workv1alpha2.ResourceBindingSpec) []workv1alpha2.
-		TargetCluster {
+	state.buildAvailableClusters(func(clusters []spreadconstraint.ClusterDetailInfo, _ *workv1alpha2.ResourceBindingSpec) []workv1alpha2.TargetCluster {
 		clusterAvailableReplicas := make([]workv1alpha2.TargetCluster, len(clusters))
 		for i, cluster := range clusters {
 			clusterAvailableReplicas[i] = workv1alpha2.TargetCluster{
 				Name:     cluster.Name,
-				Replicas: int32(cluster.AvailableReplicas),
+				Replicas: cluster.AllocatableReplicas,
 			}
 		}
 		// 2. clusterAvailableReplicas should take into account the replicas already allocated
