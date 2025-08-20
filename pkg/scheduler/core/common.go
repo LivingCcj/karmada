@@ -29,7 +29,7 @@ import (
 
 // SelectClusters selects clusters based on the placement and resource binding spec.
 func SelectClusters(clustersScore framework.ClusterScoreList,
-	placement *policyv1alpha1.Placement, spec *workv1alpha2.ResourceBindingSpec) ([]spreadconstraint.ClusterAvailableReplicas, error) {
+	placement *policyv1alpha1.Placement, spec *workv1alpha2.ResourceBindingSpec) ([]spreadconstraint.ClusterDetailInfo, error) {
 	startTime := time.Now()
 	defer metrics.ScheduleStep(metrics.ScheduleStepSelect, startTime)
 
@@ -39,7 +39,7 @@ func SelectClusters(clustersScore framework.ClusterScoreList,
 
 // AssignReplicas assigns replicas to clusters based on the placement and resource binding spec.
 func AssignReplicas(
-	clusters []spreadconstraint.ClusterAvailableReplicas,
+	clusters []spreadconstraint.ClusterDetailInfo,
 	spec *workv1alpha2.ResourceBindingSpec,
 	status *workv1alpha2.ResourceBindingStatus,
 ) ([]workv1alpha2.TargetCluster, error) {

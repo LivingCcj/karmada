@@ -77,18 +77,14 @@ type ZoneInfo struct {
 
 // ClusterDetailInfo indicate the cluster information
 type ClusterDetailInfo struct {
-	Name              string
-	Score             int64
+	Name  string
+	Score int64
+	// AvailableReplicas equal to the sum of the assigned replicas and the allocatable replicas in the cluster
 	AvailableReplicas int64
 
-	Cluster                  *clusterv1alpha1.Cluster
-	ClusterAvailableReplicas ClusterAvailableReplicas
-}
-
-// ClusterAvailableReplicas is used to record the latest available replicas of the cluster.
-type ClusterAvailableReplicas struct {
-	Cluster  *clusterv1alpha1.Cluster
-	Replicas int64
+	Cluster *clusterv1alpha1.Cluster
+	//AllocatableReplicas the max allocatable replicas in the cluster
+	AllocatableReplicas int32
 }
 
 // GroupClustersWithScore groups cluster base provider/region/zone/cluster
@@ -343,7 +339,6 @@ func (info *GroupClustersInfo) generateClustersInfo(clustersScore framework.Clus
 		clusterInfo.Name = clusterScore.Cluster.Name
 		clusterInfo.Score = clusterScore.Score
 		clusterInfo.Cluster = clusterScore.Cluster
-		clusterInfo.ClusterAvailableReplicas.Cluster = clusterScore.Cluster
 		info.Clusters = append(info.Clusters, clusterInfo)
 		clusters = append(clusters, clusterScore.Cluster)
 	}
@@ -352,7 +347,7 @@ func (info *GroupClustersInfo) generateClustersInfo(clustersScore framework.Clus
 	for i, clustersReplica := range clustersReplicas {
 		info.Clusters[i].AvailableReplicas = int64(clustersReplica.Replicas)
 		info.Clusters[i].AvailableReplicas += int64(rbSpec.AssignedReplicasForCluster(clustersReplica.Name))
-		info.Clusters[i].ClusterAvailableReplicas.Replicas = int64(clustersReplica.Replicas)
+		info.Clusters[i].AllocatableReplicas = clustersReplica.Replicas
 	}
 
 	sortClusters(info.Clusters, func(i *ClusterDetailInfo, j *ClusterDetailInfo) *bool {
