@@ -599,10 +599,10 @@ func (d *DependenciesDistributor) removeScheduleResultFromAttachedBindings(bindi
 }
 
 func (d *DependenciesDistributor) createOrUpdateAttachedBinding(ctx context.Context, attachedBinding *workv1alpha2.ResourceBinding) error {
-	existBinding := &workv1alpha2.ResourceBinding{}
+
 	bindingKey := client.ObjectKeyFromObject(attachedBinding)
-	err := d.Client.Get(ctx, bindingKey, existBinding)
-	if err == nil {
+	existBinding := attachedBinding.DeepCopy()
+	operationResult, err := controllerruntime.CreateOrUpdate(ctx, d.Client, existBinding, func() error {
 		// If this binding exists and its owner is not the input object, return error and let garbage collector
 		// delete this binding and try again later. See https://github.com/karmada-io/karmada/issues/6034.
 		if ownerRef := metav1.GetControllerOfNoCopy(existBinding); ownerRef != nil && ownerRef.UID != attachedBinding.OwnerReferences[0].UID {
@@ -637,20 +637,21 @@ func (d *DependenciesDistributor) createOrUpdateAttachedBinding(ctx context.Cont
 		existBinding.Spec.RequiredBy = mergedRequiredBy
 		existBinding.Labels = util.DedupeAndMergeLabels(existBinding.Labels, attachedBinding.Labels)
 		existBinding.Spec.Resource = attachedBinding.Spec.Resource
-
-		if err := d.Client.Update(ctx, existBinding); err != nil {
-			klog.Errorf("Failed to update resourceBinding(%s): %v", bindingKey, err)
-			return err
-		}
 		return nil
-	}
-
-	if !apierrors.IsNotFound(err) {
-		klog.Infof("Failed to get resourceBinding(%s): %v", bindingKey, err)
+	})
+	if err != nil {
+		klog.Errorf("Failed to create or update resource binding(%s): %v", bindingKey, err)
 		return err
 	}
+	if operationResult == controllerutil.OperationResultCreated {
+		klog.V(2).Infof("Create attached binding(%s) successfully.", bindingKey)
+	} else if operationResult == controllerutil.OperationResultUpdated {
+		klog.V(2).Infof("Update attached binding(%s) successfully.", bindingKey)
+	} else {
+		klog.V(2).Infof("attached binding(%s) is already up-to-date.", bindingKey)
+	}
 
-	return d.Client.Create(ctx, attachedBinding)
+	return nil
 }
 
 // Start runs the distributor, never stop until context canceled.
